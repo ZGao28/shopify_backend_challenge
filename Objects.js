@@ -1,13 +1,13 @@
 exports.Shop = class {
     constructor(){
-        this.products = 'lol';
-        this.orders = [];
+        this.products = {};
+        this.orders = {};
     }
 }
 
 exports.Order = class {
-    constructor(_lineItems) {
-        this.lineItems = _lineItems;
+    constructor(lineItems) {
+        this.lineItems = lineItems;
         this.total = 0;
         for (let i = 0; i < this.lineItems.length; i++){
             this.total += this.lineItems[i].value;
@@ -15,17 +15,18 @@ exports.Order = class {
     }
 }
 
+
 exports.Product = class {
-    constructor(_value, _name, _quantity) {
-        this.value = _value;
-        this.name = _name;
-        this.quantity = _quantity;
+    constructor(value, name, quantity) {
+        this.value = value;
+        this.name = name;
+        this.quantity = quantity;
     }
 }
 
 exports.LineItem = class {
-    constructor(_product) {
-        this.name = _product.name;
-        this.value = _product.value;
+    constructor(product, ) {
+        this.name = product.name;
+        this.value = product.value;
     }
 }

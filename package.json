@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ZGao28/shopify_backend_challenge#readme",
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "typescript": "^3.0.3"
   }
 }
