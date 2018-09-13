@@ -1,0 +1,22 @@
+{
+  "name": "shopify_backend_challenge",
+  "version": "1.0.0",
+  "description": "Developer Challenge for Shopify Winter 2019",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZGao28/shopify_backend_challenge.git"
+  },
+  "author": "Zi Gao (zgao28)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZGao28/shopify_backend_challenge/issues"
+  },
+  "homepage": "https://github.com/ZGao28/shopify_backend_challenge#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
