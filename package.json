@@ -4,7 +4,8 @@
   "description": "Developer Challenge for Shopify Winter 2019",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
   },
   "repository": {
     "type": "git",
@@ -17,8 +18,12 @@
   },
   "homepage": "https://github.com/ZGao28/shopify_backend_challenge#readme",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "mongodb": "^3.1.6",
     "typescript": "^3.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.4"
   }
 }
