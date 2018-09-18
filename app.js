@@ -22,7 +22,7 @@ MongoClient.connect('mongodb://localhost:27017', { useNewUrlParser: true }, (err
 
 // Post request for creating empty shop, must have key of store name
 // No option to load products or orders until after shop is created
-app.post('/api/create_store', (req, res) => {
+app.post('/api/create_shop', (req, res) => {
 
     //check to see if shopname exists and is string
     if (req.body.shopname && typeof req.body.shopname == 'string') {
@@ -35,37 +35,54 @@ app.post('/api/create_store', (req, res) => {
 
         //create shop object
         let temp = {
-            name: req.body['storename'],
+            name: req.body.shopname,
             description: descrip,
             products: {},
             orders: {}
         }
 
-        //insert shop object into collection
+        // Insert shop object into collection
         db.collection('shops').insertOne(temp, (err, res) => {
             if (err) {
                 console.log(err);
                 return err;
             }
-            console.log('Added the store ' + req.body['storename']);
+            console.log('Added the store ' + req.body.shopname + ' \n');
         });
+        
+        // Create index based on shop name for essentially O(1) lookup
+        // it's actually log base 8126 but thats basically constant time look up
+        db.collection('shops').createIndex({name: req.body.shopname});
 
         //return success
-        res.send('Added the store ' + req.body['storename'] + ' \n');
+        res.send('Added the store ' + req.body.shopname + ' \n');
     } else {
-        res.send('Invalid create shop request! Make sure the JSON object has a property of "storename"');
+        res.send('Invalid create shop request! Make sure the JSON object has a property of "shopname" \n');
     }
 });
 
 // Post request to remove shop
 app.post('/api/remove_shop', (req, res) => {
-    console.log(req.body);
-    db.collection('shops').insertOne(req.body, () => {console.log('Added Successfully!')});
-    res.redirect('/');
+    
+    // Check to make sure request has proper info
+    if (req.body.shopname && typeof req.body.shopname == 'string') {
+
+        // Delete all occurences of shops with that name 
+        // (reallistically it would be better here to make it delete by shop name and location)
+        db.collection('shops').deleteMany({name: req.body.shopname}, (err, res) => {
+            if (err) {
+                console.log(err);
+                return err;
+            }
+            console.log('Successfully removed all shops with name of ' + req.body.shopname + ' \n');
+        });
+
+        res.send('Shop deleted! \n');
+
+    } else {
+        res.send('Invalid delete shop request! Make sure the JSON object has a property of "shopname" \n')
+    }
 });
 
-app.post('/api/removeItem', (req, res) => {
-    console.log(req.body);
-    db.collection('shops').deleteOne({'store': req.body['store']}, () => {console.log('Removed Successfully!')});
-    res.redirect('/');
-});
+
+
