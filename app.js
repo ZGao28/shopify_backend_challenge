@@ -85,4 +85,39 @@ app.post('/api/remove_shop', (req, res) => {
 });
 
 
+// Post request to remove shop
+app.post('/api/remove_shop', (req, res) => {
+    
+    // Check to make sure request has proper info
+    if (req.body.shopname && typeof req.body.shopname == 'string') {
+
+        // Delete all occurences of shops with that name 
+        // (reallistically it would be better here to make it delete by shop name and location)
+        db.collection('shops').deleteMany({name: req.body.shopname}, (err, res) => {
+            if (err) {
+                console.log(err);
+                return err;
+            }
+            console.log('Successfully removed all shops with name of ' + req.body.shopname + ' \n');
+        });
+
+        res.send('Shop deleted! \n');
+
+    } else {
+        res.send('Invalid delete shop request! Make sure the JSON object has a property of "shopname" \n')
+    }
+});
+
+// Get request to return shop data
+app.get('/api/get_shop/*', (req, res) => {
+
+    // get the shop name by slicing it from the end of the route url
+    let temp_shop_name = `"${req.originalUrl.slice(14)}"`;
+    res.send('hello');
+});
+
+async function getShop(shop_name){
+    let shop = await db.collection('shops').findOne({name: shop_name});
+    console.log('hello');
+}
 
