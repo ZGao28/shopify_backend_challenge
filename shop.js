@@ -16,10 +16,10 @@ module.exports = {
                 console.log(err);
                 return err;
             }
-            console.log('Added the store ' + shop.name + ' \n');
+            console.log(`Added the store ${shop.name}`);
         });
 
-        return 'Added the store ' + shop.name + ' \n';        
+        return 'SUCCESS';        
     },
 
     deleteShop: async function (db, shopname){
@@ -28,10 +28,10 @@ module.exports = {
                 console.log(err);
                 return err;
             }
-            console.log('Successfully removed all shops with name of ' + shopname + ' \n');
+            console.log(`Successfully removed all shops with name of ${shopname}`);
         });
 
-        return `${shopname} shop deleted! \n`;
+        return `SUCCESS`;
     },
 
     updateShopName: async function (db, oldname, newname){
@@ -40,8 +40,9 @@ module.exports = {
                 console.log(err);
                 return err;
             }
+            console.log(`Successfully updated ${oldname} to ${newname}!`);
         });
-        return 'Successfully Updated! \n';
+        return 'SUCCESS';
     },
 
     updateShopDescription: async function (db, shopname, desc){
@@ -50,7 +51,8 @@ module.exports = {
                 console.log(err);
                 return err;
             }
+            console.log(`Successfully updated ${shopname} with description of '${desc}!'`);
         });
-        return 'Successfully Updated! \n';
+        return 'SUCCESS';
     }
 }

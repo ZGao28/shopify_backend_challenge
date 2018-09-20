@@ -47,8 +47,8 @@ app.post('/api/create_shop', (req, res) => {
         let temp = {
             name: req.body.shopname,
             description: descrip,
-            products: {},
-            orders: {}
+            products: [],
+            orders: []
         }
 
         // Insert shop object into collection and return status
@@ -85,7 +85,7 @@ app.post('/api/remove_shop', (req, res) => {
 app.post('/api/update_shop_name', (req, res) => {
     
     // Check to make sure request has proper info
-    if (req.body.shopname && typeof req.body.shopname == 'string' && req.body.newname && typeof req.body.newname == 'string') {
+    if (typeof req.body.shopname == 'string' && typeof req.body.newname == 'string') {
         // change shop name while keeping rest of object info same
         shopfunc.updateShopName(db, req.body.shopname, req.body.newname).then((ret)=>{
             res.send(ret);
@@ -101,7 +101,7 @@ app.post('/api/update_shop_name', (req, res) => {
 app.post('/api/update_shop_description', (req, res) => {
     
     // Check to make sure request has proper info
-    if (req.body.shopname && typeof req.body.shopname == 'string' && req.body.description && typeof req.body.description == 'string') {
+    if (typeof req.body.shopname == 'string' && typeof req.body.description == 'string') {
         // change shop name while keeping rest of object info same
         shopfunc.updateShopDescription(db, req.body.shopname, req.body.description).then((ret)=>{
             res.send(ret);
@@ -138,22 +138,75 @@ Product related routing!
 */
 
 app.post('/api/add_product', (req, res) => {
-    if (typeof req.body.productname == 'string' && typeof req.body.price == 'number' && typeof req.body.storename == 'string') {
+    if (typeof req.body.productname == 'string' && typeof req.body.price == 'number' && typeof req.body.shopname == 'string') {
         let query = {
             name: req.body.productname,
             price: req.body.price,
             lineitems: req.body.lineitems
         }
-        productfunc.addProduct(db, req.body.storename, query).then((ret) => {
+        productfunc.addProduct(db, req.body.shopname, query).then((ret) => {
             res.send(ret);
         }).catch((rej) => {
             res.send(rej);
         });
     } else {
-        res.send('Invalid product addition - make sure to have proper "storename", "productname" and "price" set');
+        res.send('Invalid product addition - make sure to have proper "shopname", "productname" and "price" set');
     }
+});
 
+
+app.post('/api/edit_product', (req, res) => {
+    if (typeof req.body.productname == 'string' && typeof req.body.price == 'number' && typeof req.body.shopname == 'string') {
+        let query = {
+            name: req.body.productname,
+            price: req.body.price,
+            lineitems: req.body.lineitems
+        }
+        productfunc.editProduct(db, req.body.shopname, req.body.productname, query).then((ret) => {
+            res.send(ret);
+        }).catch((rej) => {
+            res.send(rej);
+        });
+    } else {
+        res.send('Invalid product edit - make sure to have proper "shopname", "productname" and "price" set');
+    }
 });
 
 
 
+
+app.post('/api/delete_product', (req, res) => {
+    if (typeof req.body.productname == 'string' && typeof req.body.shopname == 'string') {
+        productfunc.deleteProduct(db, req.body.shopname, req.body.productname).then((ret) => {
+            res.send(ret);
+        }).catch((rej) => {
+            res.send(rej);
+        });
+    } else {
+        res.send('Invalid product addition - make sure to have proper "shopname" and "productname" set');
+    }
+});
+
+
+app.post('/api/get_product', (req, res) => {
+    if (typeof req.body.productname == 'string' && typeof req.body.shopname == 'string') {
+        shopfunc.getShop(db, req.body.shopname).then((ret) => {
+            if (typeof ret == 'object'){
+                for (let i = 0; i < ret.products.length; i++){
+                    if (ret.products[i].name == req.body.productname) {
+                        res.send(ret.products[i]);
+                    }
+                }
+            } else {
+                res.send(ret);
+            }
+        }).catch((rej) => {
+            res.send(rej);
+        });
+    } else {
+        res.send('Invalid get - make sure to have proper "shopname" and "productname" set');
+    }
+});
+
+
+ 
