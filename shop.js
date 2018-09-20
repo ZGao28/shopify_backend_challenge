@@ -1,10 +1,10 @@
 // All the exported functions for making edits to shops in database
 
 module.exports = {
-    getShop: async function (db, shop_name){
-        let shop = await db.collection('shops').findOne({name: shop_name});
+    getShop: async function (db, shopname){
+        let shop = await db.collection('shops').findOne({name: shopname});
         if (shop == null){
-            return `No shop with name ${shop_name} found!`;
+            return `No shop with name ${shopname} found!`;
         } else {
             return shop;
         }
@@ -22,16 +22,16 @@ module.exports = {
         return 'Added the store ' + shop.name + ' \n';        
     },
 
-    deleteShop: async function (db, shop_name){
-        await db.collection('shops').deleteMany({name: shop_name}, (err, res) => {
+    deleteShop: async function (db, shopname){
+        await db.collection('shops').deleteMany({name: shopname}, (err, res) => {
             if (err) {
                 console.log(err);
                 return err;
             }
-            console.log('Successfully removed all shops with name of ' + shop_name + ' \n');
+            console.log('Successfully removed all shops with name of ' + shopname + ' \n');
         });
 
-        return `${shop_name} shop deleted! \n`;
+        return `${shopname} shop deleted! \n`;
     },
 
     updateShopName: async function (db, oldname, newname){

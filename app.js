@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const app = express();
 const MongoClient = require('mongodb').MongoClient;
 const shopfunc = require('./shop');
+const productfunc = require('./product');
 let db;
 app.use(express.static(__dirname + '/static-pages/'));
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -136,7 +137,23 @@ Product related routing!
 
 */
 
-app.get('')
+app.post('/api/add_product', (req, res) => {
+    if (typeof req.body.productname == 'string' && typeof req.body.price == 'number' && typeof req.body.storename == 'string') {
+        let query = {
+            name: req.body.productname,
+            price: req.body.price,
+            lineitems: req.body.lineitems
+        }
+        productfunc.addProduct(db, req.body.storename, query).then((ret) => {
+            res.send(ret);
+        }).catch((rej) => {
+            res.send(rej);
+        });
+    } else {
+        res.send('Invalid product addition - make sure to have proper "storename", "productname" and "price" set');
+    }
+
+});
 
 
 
