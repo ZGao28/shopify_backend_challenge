@@ -168,6 +168,10 @@ const updateProductSchema = joi.object().keys({
     price: joi.number().required()
 });
 
+const deleteProductSchema = joi.object().keys({
+    shopname: joi.string().required(),
+    productname: joi.string().required()
+})
 
 
 
@@ -197,7 +201,7 @@ app.post('/api/add_product', (req, res) => {
 
 // edit a product from a store
 app.post('/api/edit_product', (req, res) => {
-    let validated = joi.validate(req.body, productSchema);
+    let validated = joi.validate(req.body, updateProductSchema);
     if (validated.error != null) {
         throw new Error(validated.error.message);
     }
@@ -206,7 +210,7 @@ app.post('/api/edit_product', (req, res) => {
     let query = {
         name: body.newname,
         price: body.price,
-        lineitems: []
+        lineitems: {}
     }
         
     productfunc.editProduct(db, body.shopname, body.productname, query).then((ret) => {
@@ -221,15 +225,16 @@ app.post('/api/edit_product', (req, res) => {
 
 app.post('/api/delete_product', (req, res) => {
     // make sure request has proper variables
-    if (typeof req.body.productname == 'string' && typeof req.body.shopname == 'string') {
-        productfunc.deleteProduct(db, req.body.shopname, req.body.productname).then((ret) => {
-            res.send(ret);
-        }).catch((rej) => {
-            res.send(rej);
-        });
-    } else {
-        res.send('Invalid product deletion - make sure to have proper "shopname" and "productname" set');
+    let validated = joi.validate(req.body, deleteProductSchema);
+    if (validated.error != null) {
+        throw new Error(validated.error.message);
     }
+    let body = validated.value;
+    productfunc.deleteProduct(db, body.shopname, body.productname).then((ret) => {
+        res.send(ret);
+    }).catch((rej) => {
+        res.send(rej);
+    });
 });
 
 
@@ -239,16 +244,6 @@ app.get('/api/get_products/*', (req, res) => {
     let temp_shop_name = `${req.originalUrl.slice(18)}`;
     shopfunc.getShop(db, temp_shop_name).then((ret) => {
         if (typeof ret == 'object'){
-
-            // the commented out stuff below would be to get a specific product
-            // was not needed for the front end stuff so i just didnt include
-            /*
-            for (let i = 0; i < ret.products.length; i++){
-                if (ret.products[i].name == req.body.productname) {
-                    res.send(ret.products[i]);
-                }
-            }
-            */
             res.send(ret.products);
         } else {
             res.send(ret);

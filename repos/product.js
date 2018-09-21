@@ -24,37 +24,43 @@ module.exports = {
         let curr = await db.collection('shops').findOne({name: shopname});
         if (curr != null){
             if (productname in curr.products){
-                return `Product with name ${productname} is already in the store! \n`;
-            } else {
-                curr.products[productname] = query;
+                delete curr.products[productname];
                 await db.collection('shops').updateOne({name: shopname}, {$set: {products: curr.products}}, (err, res) => {
                     if (err) {
                         console.log(err);
                         return err;
                     }
-                    console.log(`Successfully added product to ${shopname}`);
+                    console.log(`Successfully deleted ${productname} from ${shopname}`);
                 });
-                return `Successfully added product to ${shopname} \n`;
+                return `Successfully deleted ${productname} from ${shopname} \n`;
+            } else {
+                return `Product ${productname} not exist in ${shopname} \n`;
             }
+        } else {
+            return `Shop with ${shopname} does not exist!`;
         }
     },
 
     editProduct: async function (db, shopname, productname, query) {
-        await db.collection('shops').updateOne({name: shopname}, {$pull: {products: {name: productname}}}, (err, res) => {
-            if (err) {
-                console.log(err);
-                return err;
+        let curr = await db.collection('shops').findOne({name: shopname});
+        if (curr != null){
+            if (productname in curr.products){
+                delete curr.products[productname];
+                curr.products[query.name] = query;
+                await db.collection('shops').updateOne({name: shopname}, {$set: {products: curr.products}}, (err, res) => {
+                    if (err) {
+                        console.log(err);
+                        return err;
+                    }
+                    console.log(`Successfully edited ${productname} from ${shopname}`);
+                });
+                return `Successfully edited ${productname} from ${shopname} \n`;
+            } else {
+                return `Product ${productname} not exist in ${shopname} \n`;
             }
-        });
-
-        await db.collection('shops').updateOne({name: shopname}, {$push: {products: query}}, (err, res) => {
-            if (err) {
-                console.log(err);
-                return err;
-            }
-        });
-        console.log(`Successfully edited ${productname} in ${shopname}`);
-        return `Successfully edited ${productname} in ${shopname}`;
+        } else {
+            return `Shop with ${shopname} does not exist!`;
+        }
     }
 
 }

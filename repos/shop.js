@@ -4,7 +4,7 @@ module.exports = {
     getShop: async function (db, shopname){
         let shop = await db.collection('shops').findOne({name: shopname});
         if (shop == null){
-            return `No shop with name ${shopname} found!`;
+            return `No shop with name ${shopname} found! `;
         } else {
             return shop;
         }
@@ -51,13 +51,19 @@ module.exports = {
     },
 
     updateShop: async function (db, shop){
-        await db.collection('shops').updateOne({name: shop.name}, {$set: {name: shop.newname, description: shop.description}}, (err, res) => {
-            if (err) {
-                console.log(err);
-                return err;
-            }
-            console.log(`Successfully updated!`);
-        });
-        return 'SUCCESS';
+        let temp = await db.collection('shops').findOne({name: shop.name});
+        
+        if (temp != null) {
+            await db.collection('shops').updateOne({name: shop.name}, {$set: {name: shop.newname, description: shop.description}}, (err, res) => {
+                if (err) {
+                    console.log(err);
+                    return err;
+                }
+                console.log(`Successfully updated!`);
+            });
+            return `Successfully updated to ${shop.newname}! \n`;
+        } else {
+            return `${shop.name} not found! \n`;
+        }
     }
 }
