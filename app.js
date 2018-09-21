@@ -1,10 +1,16 @@
 // porting in and initializing modules
-const express = require('express')
-const bodyParser = require('body-parser')
+const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 const MongoClient = require('mongodb').MongoClient;
-const shopfunc = require('./shop');
-const productfunc = require('./product');
+const joi = require('joi');
+
+// database interfacing functions
+const shopfunc = require('./repos/shop');
+const productfunc = require('./repos/product');
+const orderfunc = require('./repos/order');
+
+// Express setup stuff
 let db;
 app.use(express.static(__dirname + '/static-pages/'));
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -26,25 +32,30 @@ MongoClient.connect('mongodb://localhost:27017', { useNewUrlParser: true }, (err
 
 /* 
 
-Shop modification routing!
+Shop routing
 
 */
 
-// Post request for creating empty shop, must have key of store name
+// Define shop schema
+
+const shopSchema = joi.object().keys({
+    shopname: joi.string().required(),
+    description: joi.string().required(), 
+});
+
+// Post request for creating empty shop, must have key of store name and description
 // No option to load products or orders until after shop is created
 app.post('/api/create_shop', (req, res) => {
 
-    //check to see if shopname exists and is string
-    if (req.body.shopname && typeof req.body.shopname == 'string') {
-        let descrip = '';
-        
-        //check to see if there is a description for shop, else leave blank
-        if (req.body.description && typeof req.body.description == 'string'){
-            descrip = req.body.description;
-        }
-
-        //create shop object
-        let temp = {
+    let validated = joi.validate(req.body, shopSchema);
+    if (validated.error != null) {
+        throw new Error(validated.error.message);
+    }
+    
+    let body = validated.value;
+    
+    //create shop object
+    let query = {
             name: req.body.shopname,
             description: descrip,
             products: [],
@@ -57,9 +68,7 @@ app.post('/api/create_shop', (req, res) => {
         }).catch((rej)=>{
             res.send(rej);
         });
-    } else {
-        res.send('Invalid create shop request! Make sure the JSON object has a property of "shopname" \n');
-    }
+    } 
 });
 
 // Post request to remove shop
@@ -137,6 +146,8 @@ Product related routing!
 
 */
 
+//adding a product
+
 app.post('/api/add_product', (req, res) => {
     if (typeof req.body.productname == 'string' && typeof req.body.price == 'number' && typeof req.body.shopname == 'string') {
         let query = {
@@ -154,6 +165,8 @@ app.post('/api/add_product', (req, res) => {
     }
 });
 
+
+// edit a product from a store
 
 app.post('/api/edit_product', (req, res) => {
     if (typeof req.body.productname == 'string' && typeof req.body.price == 'number' && typeof req.body.shopname == 'string') {
@@ -173,7 +186,7 @@ app.post('/api/edit_product', (req, res) => {
 });
 
 
-
+// Deleting a product from a store
 
 app.post('/api/delete_product', (req, res) => {
     if (typeof req.body.productname == 'string' && typeof req.body.shopname == 'string') {
@@ -188,25 +201,55 @@ app.post('/api/delete_product', (req, res) => {
 });
 
 
-app.post('/api/get_product', (req, res) => {
-    if (typeof req.body.productname == 'string' && typeof req.body.shopname == 'string') {
-        shopfunc.getShop(db, req.body.shopname).then((ret) => {
-            if (typeof ret == 'object'){
-                for (let i = 0; i < ret.products.length; i++){
-                    if (ret.products[i].name == req.body.productname) {
-                        res.send(ret.products[i]);
-                    }
+// This is to get all products from a shop
+
+app.get('/api/get_products/*', (req, res) => {
+    let temp_shop_name = `${req.originalUrl.slice(18)}`;
+    shopfunc.getShop(db, temp_shop_name).then((ret) => {
+        if (typeof ret == 'object'){
+
+            // the commented out stuff below would be to get a specific product, bit
+            // was not needed for the front end stuff so i just didnt include
+            /*
+            for (let i = 0; i < ret.products.length; i++){
+                if (ret.products[i].name == req.body.productname) {
+                    res.send(ret.products[i]);
                 }
-            } else {
-                res.send(ret);
             }
+            */
+            res.send(ret.products);
+        } else {
+            res.send(ret);
+        }
+    }).catch((rej) => {
+        res.send(rej);
+    });
+});
+
+
+
+/*
+
+Order related routing
+
+*/
+
+
+//add an order
+
+app.post('/api/add_order', (req, res) => {
+    if (typeof req.body.id == 'string' && req.body.lineitems.length >= 1 && typeof req.body.shopname == 'string') {
+        let query = {
+            id: req.body.id,
+            price: req.body.price,
+            lineitems: req.body.lineitems
+        }
+        productfunc.addProduct(db, req.body.shopname, query).then((ret) => {
+            res.send(ret);
         }).catch((rej) => {
             res.send(rej);
         });
     } else {
-        res.send('Invalid get - make sure to have proper "shopname" and "productname" set');
+        res.send('Invalid product addition - make sure to have proper "shopname", "productname" and "price" set');
     }
 });
-
-
- 
