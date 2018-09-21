@@ -1,24 +1,42 @@
 module.exports = {
-    addProduct: async function (db, shopname, query) {
-        await db.collection('shops').updateOne({name: shopname}, {$push: {products: query}}, (err, res) => {
-            if (err) {
-                console.log(err);
-                return err;
+    addProduct: async function (db, shopname, productname, query) {
+        let curr = await db.collection('shops').findOne({name: shopname});
+        if (curr != null){
+            if (productname in curr.products){
+                return `Product with name ${productname} is already in the store! \n`;
+            } else {
+                curr.products[productname] = query;
+                await db.collection('shops').updateOne({name: shopname}, {$set: {products: curr.products}}, (err, res) => {
+                    if (err) {
+                        console.log(err);
+                        return err;
+                    }
+                    console.log(`Successfully added product to ${shopname}`);
+                });
+                return `Successfully added product to ${shopname} \n`;
             }
-            console.log(`Successfully added product to ${shopname}`);
-        });
-        return 'SUCCESS';
+        } else {
+            return `Shop with ${shopname} does not exist!`;
+        }
     },
 
     deleteProduct: async function (db, shopname, productname) {
-        await db.collection('shops').updateOne({name: shopname}, {$pull: {products: {name: productname}}}, (err, res) => {
-            if (err) {
-                console.log(err);
-                return err;
+        let curr = await db.collection('shops').findOne({name: shopname});
+        if (curr != null){
+            if (productname in curr.products){
+                return `Product with name ${productname} is already in the store! \n`;
+            } else {
+                curr.products[productname] = query;
+                await db.collection('shops').updateOne({name: shopname}, {$set: {products: curr.products}}, (err, res) => {
+                    if (err) {
+                        console.log(err);
+                        return err;
+                    }
+                    console.log(`Successfully added product to ${shopname}`);
+                });
+                return `Successfully added product to ${shopname} \n`;
             }
-            console.log(`Successfully deleted ${productname} from ${shopname}`);
-        });
-        return 'SUCCESS';
+        }
     },
 
     editProduct: async function (db, shopname, productname, query) {
@@ -36,7 +54,7 @@ module.exports = {
             }
         });
         console.log(`Successfully edited ${productname} in ${shopname}`);
-        return 'SUCCESS';
+        return `Successfully edited ${productname} in ${shopname}`;
     }
 
 }

@@ -11,47 +11,52 @@ module.exports = {
     },
 
     createShop: async function (db, shop){
-        await db.collection('shops').insertOne(shop, (err, res) => {
-            if (err) {
-                console.log(err);
-                return err;
-            }
-            console.log(`Added the store ${shop.name}`);
-        });
 
-        return 'SUCCESS';        
+        // Check to make sure the shop doesn't already exist
+        let temp = await db.collection('shops').findOne({name: shop.name});
+
+        if (temp == null){
+            // since none with that name exists, add to db
+            await db.collection('shops').insertOne(shop, (err, res) => {
+                if (err) {
+                    console.log(err);
+                    return err;
+                }
+                console.log(`Added the store ${shop.name}`);
+            });
+            return `Shop with name ${shop.name} successfully added! \n`; 
+        } else {
+            // if it does exist, return that it already exists
+            return `Shop with name ${shop.name} already exists! \n`;
+        }   
     },
 
     deleteShop: async function (db, shopname){
-        await db.collection('shops').deleteMany({name: shopname}, (err, res) => {
-            if (err) {
-                console.log(err);
-                return err;
-            }
-            console.log(`Successfully removed all shops with name of ${shopname}`);
-        });
+        let temp = await db.collection('shops').findOne({name: shop.name});
+        
+        if (temp != null) {
+            await db.collection('shops').deleteOne({name: shopname}, (err, res) => {
+                if (err) {
+                    console.log(err);
+                    return err;
+                }
+                console.log(`Successfully removed all shops with name of ${shopname}`);
+            });
+            return `Shop with name ${shop.name} deleted \n`;
+        } else {
+            return `Shop with name ${shop.name} does not exist! \n`;
+        }
 
-        return `SUCCESS`;
+        
     },
 
-    updateShopName: async function (db, oldname, newname){
-        await db.collection('shops').updateOne({name: oldname}, {$set: {name: newname}}, (err, res) => {
+    updateShop: async function (db, shop){
+        await db.collection('shops').updateOne({name: shop.name}, {$set: {name: shop.newname, description: shop.description}}, (err, res) => {
             if (err) {
                 console.log(err);
                 return err;
             }
-            console.log(`Successfully updated ${oldname} to ${newname}!`);
-        });
-        return 'SUCCESS';
-    },
-
-    updateShopDescription: async function (db, shopname, desc){
-        await db.collection('shops').updateOne({name: shopname}, {$set: {description: desc}}, (err, res) => {
-            if (err) {
-                console.log(err);
-                return err;
-            }
-            console.log(`Successfully updated ${shopname} with description of '${desc}!'`);
+            console.log(`Successfully updated!`);
         });
         return 'SUCCESS';
     }
