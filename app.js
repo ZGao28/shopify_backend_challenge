@@ -59,6 +59,9 @@ const updateShopSchema = joi.object().keys({
     description: joi.string().required() 
 });
 
+const deleteShopSchema = joi.object().keys({
+    shopname: joi.string().required()
+});
 
 // Post request for creating empty shop, must have key of store name and description
 // No option to load products or orders until after shop is created
@@ -91,19 +94,20 @@ app.post('/api/create_shop', (req, res) => {
 app.post('/api/remove_shop', (req, res) => {
     
     // Check to make sure request has proper info
-    if (typeof req.body.shopname == 'string') {
-        // Delete all the shop with that name
-        shopfunc.deleteShop(db, req.body.shopname).then((ret)=>{
-            res.send(ret);
-        }).catch((rej)=>{
-            res.send(rej);
-        });
-    } else {
-        res.send('Invalid delete shop request! Make sure the JSON object has a property of "shopname" \n')
+    let validated = joi.validate(req.body, deleteShopSchema);
+    if (validated.error != null) {
+        throw new Error(validated.error.message);
     }
+    let body = validated.value;
+        // Delete all the shop with that name
+    shopfunc.deleteShop(db, body.shopname).then((ret)=>{
+        res.send(ret);
+    }).catch((rej)=>{
+        res.send(rej);
+    });
 });
 
-// Post request to edit shop name
+// Post request to edit shop info
 app.post('/api/update_shop', (req, res) => {
     
     // Check to make sure request has proper info
@@ -279,10 +283,10 @@ app.post('/api/add_order', (req, res) => {
     let query = {
         id: body.orderID,
         totalprice: 0,
-        lineitems: []
+        lineitems: {}
     }
 
-    orderfunc.addOrder(db, body.shopname, query).then((ret) => {
+    orderfunc.addOrder(db, body.shopname, body.orderID, query).then((ret) => {
         res.send(ret);
     }).catch((rej) => {
         res.send(rej);
