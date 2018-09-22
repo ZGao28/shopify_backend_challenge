@@ -16,7 +16,7 @@ module.exports = {
                 return `Successfully added product to ${shopname} \n`;
             }
         } else {
-            return `Shop with ${shopname} does not exist!`;
+            return `Shop with ${shopname} does not exist! \n`;
         }
     },
 
@@ -37,7 +37,7 @@ module.exports = {
                 return `Product ${productname} not exist in ${shopname} \n`;
             }
         } else {
-            return `Shop with ${shopname} does not exist!`;
+            return `Shop with ${shopname} does not exist! \n`;
         }
     },
 
@@ -59,7 +59,7 @@ module.exports = {
                 return `Product ${productname} not exist in ${shopname} \n`;
             }
         } else {
-            return `Shop with ${shopname} does not exist!`;
+            return `Shop with ${shopname} does not exist! \n`;
         }
     }
 

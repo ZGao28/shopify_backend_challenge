@@ -32,7 +32,7 @@ module.exports = {
     },
 
     deleteShop: async function (db, shopname){
-        let temp = await db.collection('shops').findOne({name: shop.name});
+        let temp = await db.collection('shops').findOne({name: shopname});
         
         if (temp != null) {
             await db.collection('shops').deleteOne({name: shopname}, (err, res) => {

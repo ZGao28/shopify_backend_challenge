@@ -16,7 +16,7 @@ module.exports = {
                 return `Successfully added order with orderID ${orderID} to ${shopname} \n`;
             }
         } else {
-            return `Shop with ${shopname} does not exist!`;
+            return `Shop with ${shopname} does not exist! \n`;
         }
     },
 
@@ -37,7 +37,7 @@ module.exports = {
                 return `order ${orderID} does not exist in ${shopname} \n`;
             }
         } else {
-            return `Shop with ${shopname} does not exist!`;
+            return `Shop with ${shopname} does not exist! \n`;
         }
     },
 }

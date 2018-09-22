@@ -358,7 +358,6 @@ app.post('/api/add_lineitem', (req, res) => {
         detail: body.detail
     }
 
-
     //check to see if line item should be added to orders or to products
     if (typeof body.orderID == 'string'){
         lineitemfunc.addToOrder(db, body.shopname, body.orderID, query).then((ret) => {
@@ -404,6 +403,7 @@ app.post('/api/delete_lineitem', (req, res) => {
         });
     }
 });
+
 
 
 
