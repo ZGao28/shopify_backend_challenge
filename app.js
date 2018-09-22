@@ -341,7 +341,12 @@ const lineitemSchema = joi.object().keys({
     detail: joi.string().required()
 });
 
-
+const deleteLineitemSchema = joi.object().keys({
+    shopname: joi.string().required(),
+    productname: joi.string().required(),
+    orderID: joi.string(),
+    detail: joi.string().required()
+});
 
 // add new line item
 
@@ -377,8 +382,8 @@ app.post('/api/add_lineitem', (req, res) => {
 
 // delete line item
 
-app.post('/api/delete_lineitem', (req, res) => {
-    let validated = joi.validate(req.body, lineitemSchema);
+app.post('/api/remove_lineitem', (req, res) => {
+    let validated = joi.validate(req.body, deleteLineitemSchema);
     if (validated.error != null) {
         throw new Error(validated.error.message);
     }
