@@ -1,7 +1,12 @@
 module.exports = {
+
+    // add a product
     addProduct: async function (db, shopname, productname, query) {
         let curr = await db.collection('shops').findOne({name: shopname});
+
+        // make sure shop exists
         if (curr != null){
+            // check to see if product is already in the store
             if (productname in curr.products){
                 return `Product with name ${productname} is already in the store! \n`;
             } else {
@@ -20,8 +25,10 @@ module.exports = {
         }
     },
 
+    // delete product
     deleteProduct: async function (db, shopname, productname) {
         let curr = await db.collection('shops').findOne({name: shopname});
+        // check to see if product is in store
         if (curr != null){
             if (productname in curr.products){
                 delete curr.products[productname];
@@ -41,10 +48,13 @@ module.exports = {
         }
     },
 
+    //edit products
+
     editProduct: async function (db, shopname, productname, query) {
         let curr = await db.collection('shops').findOne({name: shopname});
         if (curr != null){
             if (productname in curr.products){
+                // update products 
                 delete curr.products[productname];
                 curr.products[query.name] = query;
                 await db.collection('shops').updateOne({name: shopname}, {$set: {products: curr.products}}, (err, res) => {
