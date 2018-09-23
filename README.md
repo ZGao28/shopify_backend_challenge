@@ -23,7 +23,7 @@ Before I started working on any of the backend, I created a quick UX/UI diagram,
 
 Mongo Layout:
 
-`
+```
 shops: {
           {
             shopname: The shop's name (string),
@@ -58,7 +58,7 @@ shops: {
           }
        }
 
-`
+```
 
 
 
