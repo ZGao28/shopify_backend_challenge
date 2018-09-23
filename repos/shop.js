@@ -1,6 +1,8 @@
 // All the exported functions for making edits to shops in database
 
 module.exports = {
+
+    // get shop function
     getShop: async function (db, shopname){
         let shop = await db.collection('shops').findOne({name: shopname});
         if (shop == null){
@@ -10,6 +12,18 @@ module.exports = {
         }
     },
 
+    //get all function
+
+    getAll: async function (db){
+        let shop = await db.collection('shops').find({}).toArray();
+        if (shop == null){
+            return `No shop with name ${shopname} found! `;
+        } else {
+            return shop;
+        }
+    }, 
+
+    // create shop
     createShop: async function (db, shop){
 
         // Check to make sure the shop doesn't already exist
@@ -31,6 +45,8 @@ module.exports = {
         }   
     },
 
+
+    // delete shop
     deleteShop: async function (db, shopname){
         let temp = await db.collection('shops').findOne({name: shopname});
         
@@ -50,9 +66,11 @@ module.exports = {
         
     },
 
+    // updating shop info
     updateShop: async function (db, shop){
         let temp = await db.collection('shops').findOne({name: shop.name});
         
+        // make sure shop exists
         if (temp != null) {
             await db.collection('shops').updateOne({name: shop.name}, {$set: {name: shop.newname, description: shop.description}}, (err, res) => {
                 if (err) {

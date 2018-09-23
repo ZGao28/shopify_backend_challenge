@@ -11,27 +11,31 @@ const app = express();
 const MongoClient = require('mongodb').MongoClient;
 const joi = require('joi');
 
+//authorization for connecting to mongo Atlas, kept in gitignore
+const auth = require(mongoauth);
+
 // database interfacing functions
 const shopfunc = require('./repos/shop');
 const productfunc = require('./repos/product');
 const orderfunc = require('./repos/order');
 const lineitemfunc = require('./repos/lineitem');
+let db;
+
 
 // Express setup stuff
-let db;
 app.use(express.static(__dirname + '/static-pages/'));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // Connect to mongo and start the app on port 3500
-MongoClient.connect('mongodb://localhost:27017', { useNewUrlParser: true }, (err, client) => {
+MongoClient.connect(`mongodb+srv://${auth.mongoID}:${auth.mongoPass}@donations-pqltl.mongodb.net/test?retryWrites=true`, { useNewUrlParser: true }, (err, client) => {
     if (err) {
         console.log('Error Connecting to Database \n'); 
         return err;
     }
     // Use db shopify
     db = client.db('shopify');
-    app.listen(3500, () => {console.log('listening on PORT 3500!')});
+    app.listen(8080, '0.0.0.0', () => {console.log('listening on PORT 8080!')});
 });
 
 
@@ -47,7 +51,7 @@ Shop routing
 
 */
 
-// Define shop schema
+// Define shop schemas
 const shopSchema = joi.object().keys({
     shopname: joi.string().required(),
     description: joi.string().required() 
@@ -62,6 +66,7 @@ const updateShopSchema = joi.object().keys({
 const deleteShopSchema = joi.object().keys({
     shopname: joi.string().required()
 });
+
 
 // Post request for creating empty shop, must have key of store name and description
 // No option to load products or orders until after shop is created
@@ -99,7 +104,8 @@ app.post('/api/remove_shop', (req, res) => {
         throw new Error(validated.error.message);
     }
     let body = validated.value;
-        // Delete all the shop with that name
+    
+    // Delete the shop with that name
     shopfunc.deleteShop(db, body.shopname).then((ret)=>{
         res.send(ret);
     }).catch((rej)=>{
@@ -117,6 +123,7 @@ app.post('/api/update_shop', (req, res) => {
     }
     let body = validated.value;
 
+    // build the query for edit
     let query = {
         newname: body.newname,
         name: body.shopname,
@@ -134,15 +141,35 @@ app.post('/api/update_shop', (req, res) => {
 // Get request to return shop data
 app.get('/api/get_shop/*', (req, res) => {
     // get the shop name by slicing it from the end of the route url
-    let temp_shop_name = `${req.originalUrl.slice(14)}`;
+    // need to use another function to remove all %20 and replace with spaces
+    getshopname(`${req.originalUrl.slice(14)}`).then((ret)=>{
+        shopfunc.getShop(db, ret).then((obj)=>{
+            res.send(obj);
+        }).catch((err) => {
+            res.send(err);
+        });
+    }).catch((rej) => {
+        res.send(rej);
+    });
+});
 
+
+// return all the shops and everything in all the shops
+app.get('/api/getAll', (req, res) => {
     // return shops
-    shopfunc.getShop(db, temp_shop_name).then((ret)=>{
+    shopfunc.getAll(db).then((ret)=>{
         res.send(ret);
     }).catch((rej) => {
         res.send(rej);
     });
 });
+
+
+// replacement function for %20 and space, in searches
+async function getshopname(s){
+    return await s.split('%20').join(' ');
+}
+
 
 
 
@@ -158,7 +185,7 @@ Product related routing!
 
 
 
-// create product schema
+// create product schemas
 const productSchema = joi.object().keys({
     shopname: joi.string().required(),
     productname: joi.string().required(),
@@ -243,18 +270,22 @@ app.post('/api/delete_product', (req, res) => {
 
 
 // This is to get all products from a shop
-
 app.get('/api/get_products/*', (req, res) => {
-    let temp_shop_name = `${req.originalUrl.slice(18)}`;
-    shopfunc.getShop(db, temp_shop_name).then((ret) => {
-        if (typeof ret == 'object'){
-            res.send(ret.products);
-        } else {
-            res.send(ret);
-        }
+    // get shop name from url
+    getshopname(`${req.originalUrl.slice(18)}`).then((ret)=>{
+        shopfunc.getShop(db, ret).then((obj) => {
+            if (typeof obj == 'object'){
+                res.send(obj.products);
+            } else {
+                res.send(obj);
+            }
+        }).catch((err) => {
+            res.send(err);
+        });
     }).catch((rej) => {
         res.send(rej);
     });
+    
 });
 
 
@@ -311,13 +342,16 @@ app.post('/api/delete_order', (req, res) => {
 
 // get all orders
 app.get('/api/get_orders/*', (req, res) => {
-    let temp_shop_name = `${req.originalUrl.slice(16)}`;
-    shopfunc.getShop(db, temp_shop_name).then((ret) => {
-        if (typeof ret == 'object'){
-            res.send(ret.orders);
-        } else {
-            res.send(ret);
-        }
+    getshopname(`${req.originalUrl.slice(16)}`).then((ret)=>{
+        shopfunc.getShop(db, ret).then((obj) => {
+            if (typeof obj == 'object'){
+                res.send(obj.orders);
+            } else {
+                res.send(obj);
+            }
+        }).catch((err) => {
+            res.send(err);
+        });
     }).catch((rej) => {
         res.send(rej);
     });
@@ -364,6 +398,7 @@ app.post('/api/add_lineitem', (req, res) => {
     }
 
     //check to see if line item should be added to orders or to products
+    // if orderID is included, then line item will be deleted from order
     if (typeof body.orderID == 'string'){
         lineitemfunc.addToOrder(db, body.shopname, body.orderID, query).then((ret) => {
             res.send(ret);
@@ -381,7 +416,6 @@ app.post('/api/add_lineitem', (req, res) => {
 
 
 // delete line item
-
 app.post('/api/remove_lineitem', (req, res) => {
     let validated = joi.validate(req.body, deleteLineitemSchema);
     if (validated.error != null) {
@@ -393,6 +427,8 @@ app.post('/api/remove_lineitem', (req, res) => {
         productname: body.productname,
         detail: body.detail
     }
+
+    // check to delete form orders or products
 
     if (typeof body.orderID == 'string'){
         lineitemfunc.removeFromOrder(db, body.shopname, body.orderID, query).then((ret) => {

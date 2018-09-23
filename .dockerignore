@@ -1,0 +1,5 @@
+node_modules
+npm-debug.log
+.gitignore
+populatedb.sh
+run_curl_shopify.sh
