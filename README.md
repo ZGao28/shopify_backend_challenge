@@ -5,7 +5,8 @@ For the Shopify 2019 Winter Backend Challenge
 I built all the APIs around what I thought would be useful and realistic for an actual app.
 
 E.G. 
-You cannot add line item to order if that line item is not in products \n
+You cannot add line item to order if that line item is not in products
+
 Adding a line item to order results in decrease in stock of line item in products
 
 Before I started working on any of the backend, I created a quick UX/UI diagram, and labeled things that would be required for the backend to do. I was going to also throw together a quick front end with React but ran out of time.
