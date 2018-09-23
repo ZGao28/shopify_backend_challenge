@@ -12,7 +12,7 @@ const MongoClient = require('mongodb').MongoClient;
 const joi = require('joi');
 
 //authorization for connecting to mongo Atlas, kept in gitignore
-const auth = require(mongoauth);
+const auth = require('./mongoauth');
 
 // database interfacing functions
 const shopfunc = require('./repos/shop');

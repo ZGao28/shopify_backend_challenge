@@ -7,7 +7,194 @@
 </head>
 
 <body>
+<p>
+  # shopify_backend_challenge
+  For the Shopify 2019 Winter Backend Challenge
+  <br>
+  <br>
+  ## API Design and Thought Process
+  I built all the APIs around what I thought would be useful and realistic for an actual app.
+  <br>
+  <br>
+  E.G. 
+  <br>
+  You cannot add line item to order if that line item is not in products
+  <br>
+  Adding a line item to order results in decrease in stock of line item in products
+  <br>
+  Before I started working on any of the backend, I created a quick UX/UI diagram, and labeled things that would be required for the backend to do. I was going to also throw together a quick front end with React but ran out of time.
+  <br>
+  1. Create a shop, with name and description
+  <br>
+  2. Ability to add, edit, remove, get products and orders once shop is created
+  <br>
+  3. Ability to add and remove line items to products and orders once they exist
+  <br>
+  <br>
+  
+  
+  ## Documentation
+  <br>
 
+  ### Interacting with shops:
+  <br>
+  ###### Get All
+  <br>
+  Get request to <url>/api/getAll
+      <br>
+  Returns: JSON object with all shops
+  <br>
+  
+  ###### Get Shop
+  <br>
+  Get request to <url>/api/get_shop/<shopname>
+      <br>
+  Returns: JSON object with all properties of shop
+  <br>
+  ###### Add Shop
+  <br>
+  Post request to <url>/api/create_shop
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "description": "some description"}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Adds shop, if shop with specified name is already present, no shop will be added.
+  <br>
+  ###### Edit Shop
+  <br>
+  Post request to <url>/api/edit_shop
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "newname": "new name here", "description": "some description"}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Edits shop name and description, If no shop with name specified, no shop will be edited.
+  <br>
+  ###### Delete Shop
+  <br>
+  Post request to <url>/api/remove_shop
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name"}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Deletes shop
+  <br>
+  
+  
+  ### Interacting with products:
+  <br>
+  ###### Get Products
+  <br>
+  Get request to <url>/api/get_products/<shopname>
+      <br>
+  Returns: JSON object with all products of shop
+  <br>
+  ###### Add Product
+  <br>
+  Post request to <url>/api/add_product
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "productname": "some product", "price": price value here}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Adds product, but specified shop must exist! If product with specified name is already present, no product will be added.
+  <br>
+  ###### Edit Product
+  <br>
+  Post request to <url>/api/edit_shop
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "newname": "new name here", "productname": "old name", "price": new price}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Edits product price and name, **And also deletes line items due to price and name change!** If no shop or product with name specified, nothing will be edited.
+  <br>
+  ###### Delete Product
+  <br>
+  Post request to <url>/api/delete_product
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "productname": "some product name"}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Deletes product
+  <br>
+  
+  ### Interacting with orders:
+  <br>
+  ###### Get orders
+  <br>
+  Get request to <url>/api/get_orders/<shopname>
+      <br>
+  Returns: JSON object with all orders of shop
+  <br>
+  ###### Add Order
+  <br>
+  Post request to <url>/api/add_order
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "orderID": "some id"}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Adds order, but specified shop must exist! If order with specified id is already present, no order will be added.
+  <br>
+  
+  ###### Delete Order
+  <br>
+  Post request to <url>/api/delete_order
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "orderID": "some id"}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Deletes order
+  <br>
+  <br>
+  ### Interacting with Line Items:
+  <br>
+  ###### Add Line Item To Product
+  <br><br>
+  Post request to <url>/api/add_lineitem
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "productname": "some product name", "detail": "some unique detail", "quantity": stock}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Adds line item to product, but **the product must exist in the shop specified**! If line item with specified detail is already present, **The stock will be increased by the incoming quantity**.
+  <br>
+  <br>
+  ###### Add Line Item To Order
+  <br>
+  Post request to <url>/api/add_lineitem
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "productname": "some product name", "detail": "some unique detail", "quantity": stock, "orderID": "some order id"}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Adds line item to order, but **the corresponding product line item must exist, and have sufficient stock in the shop specified**! If line item with specified detail is already present, **the stock will be increased by the incoming quantity**. Also, **stock of product line item will decrease by quantity from order**
+  <br>
+  ###### Delete Line item from Product
+  <br>
+  Post request to <url>/api/remove_lineitem
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "productname": "some product name", "detail": "some unique detail"}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Deletes line item from product
+  <br>
+  ###### Delete Line item from Product
+  <br>
+  Post request to <url>/api/remove_lineitem
+      <br>
+  Send JSON with request in following format: '{"shopname": "some shop name", "productname": "some product name", "detail": "some unique detail", "orderID": "some order id"}'
+  <br>
+  Returns: Status message
+  <br>
+  Action: Deletes line item from order specified. Also, **stock of product line item will increase by quantity from order**
+</p>
 </body>
 
 </html>
