@@ -21,6 +21,48 @@ Before I started working on any of the backend, I created a quick UX/UI diagram,
 
 ## Documentation
 
+Mongo Layout:
+
+`
+shops: {
+          {
+            shopname: The shop's name (string),
+            description: The shop's description (string),
+            products: {
+              productName: {
+                productname: product's name (e.g. Belt) (string),
+                price: product's price (number),
+                lineitems: {
+                  lineitemDetail: {
+                    productname: product's name (string),
+                    detail: detail of line item (e.g. color, sizing) (string)
+                    quantity: stock of the lineitem (number)
+                    price: same as the product price (number)
+                  }
+                }
+              }
+            }
+            orders: {
+              orderID: {
+                id: order's id (e.g. 30005) (string),
+                totalprice: order's total price (number),
+                lineitems: {
+                  lineitemDetail, productname: {
+                    productname: product's name (string),
+                    detail: detail of line item (e.g. color, sizing) (string)
+                    quantity: stock of the lineitem (number)
+                    price: same as the product price (number)
+                  }
+                }
+              }
+          }
+       }
+
+`
+
+
+
+
 ### Interacting with shops:
 
 ###### Get All
